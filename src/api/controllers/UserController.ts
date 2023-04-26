@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
 import {
-    Authorized, Body, Delete, Get, JsonController, OnUndefined, Param, Post, Put, Req, Query
+    Authorized, Body, Delete, Get, JsonController, OnUndefined, Param, Post, Put, Req, QueryParam
 } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
@@ -54,16 +54,17 @@ export class UserController {
         return this.userService.find();
     }
 
+    @Get('/search')
+    @OnUndefined(UserNotFoundError)
+    @ResponseSchema(BaseUser, { isArray: true })
+    public search(@QueryParam('search') search: string): Promise<User[]> {
+        return this.userService.searchUser(search);
+    }
+
     @Get('/me')
     @ResponseSchema(UserResponse, { isArray: true })
     public findMe(@Req() req: any): Promise<User[]> {
         return req.user;
-    }
-
-    @Get('/search')
-    @ResponseSchema(BaseUser, { isArray: true })
-    public async search(@Query('search') search: string): Promise<User[]> {
-        return this.userService.searchUser(search);
     }
 
     @Get('/:id')
